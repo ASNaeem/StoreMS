@@ -106,7 +106,7 @@
          </rect>
         </property>
         <property name="text">
-         <string>ADD Supplier</string>
+         <string>Add Supplier</string>
         </property>
        </widget>
        <widget class="QWidget" name="layoutWidget">
@@ -134,6 +134,9 @@
          </item>
          <item row="0" column="1">
           <widget class="QLineEdit" name="pidfield">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="readOnly">
             <bool>true</bool>
            </property>
@@ -333,7 +336,7 @@
             </sizepolicy>
            </property>
            <property name="text">
-            <string>DELETE Supplier</string>
+            <string>Delete Supplier</string>
            </property>
           </widget>
          </item>
@@ -346,7 +349,7 @@
             </sizepolicy>
            </property>
            <property name="text">
-            <string>INSERT Product</string>
+            <string>Add Product</string>
            </property>
           </widget>
          </item>
@@ -621,6 +624,48 @@
    </layout>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>755</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuMenu">
+    <property name="title">
+     <string>Menu</string>
+    </property>
+    <addaction name="actionSave"/>
+    <addaction name="actionRollback"/>
+   </widget>
+   <addaction name="menuMenu"/>
+  </widget>
+  <action name="actionSave">
+   <property name="icon">
+    <iconset theme="edit-copy">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>Save</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="actionRollback">
+   <property name="icon">
+    <iconset theme="edit-undo">
+     <normaloff>.</normaloff>.</iconset>
+   </property>
+   <property name="text">
+    <string>Rollback</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

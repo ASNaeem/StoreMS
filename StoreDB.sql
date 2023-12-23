@@ -28,22 +28,22 @@ create table sale (
     foreign key (customerid) references customer(customerid) on delete cascade
 );
 -- create stock table
-CREATE TABLE stock (
-    productid INT,
-    supplierid INT,
-    quantity INT,
-    purchasedate DATE DEFAULT (CURRENT_DATE),
-    PRIMARY KEY (productid, supplierid),
-    FOREIGN KEY (productid) REFERENCES product(productid) ON DELETE CASCADE,
-    FOREIGN KEY (supplierid) REFERENCES supplier(supplierid) ON DELETE cascade
+create table stock (
+    productid int,
+    supplierid int,
+    quantity int,
+    purchasedate date default (current_date),
+    primary key (productid, supplierid),
+    foreign key (productid) references product(productid) on delete cascade,
+    foreign key (supplierid) references supplier(supplierid) on delete cascade
 );
 delimiter //
 create trigger after_sale
 after insert on sale
 for each row
 begin
-    DECLARE supplier_id INT;
-    SELECT supplierid INTO supplier_id FROM stock WHERE productid = NEW.productid;
+    declare supplier_id int;
+    select supplierid into supplier_id from stock where productid = new.productid;
     update stock
     set quantity = quantity - new.quantity
     where productid = new.productid and supplierid = supplier_id;
@@ -52,14 +52,17 @@ delimiter ;
 
 delimiter //
 create trigger update_sale
-after update on sale
+before update on sale
 for each row
 begin
-    DECLARE supplier_id INT;
-    SELECT supplierid INTO supplier_id FROM stock WHERE productid = NEW.productid;
+    declare supplier_id int;
+    select supplierid into supplier_id from stock where productid = old.productid;
     update stock
-    set quantity = quantity + old.quantity - new.quantity
-    where productid = new.productid and supplierid = supplier_id;
+        set quantity = quantity + old.quantity
+        where productid = old.productid and supplierid = supplier_id;
+    update stock
+        set quantity = quantity - new.quantity
+        where productid = new.productid and supplierid = supplier_id;
 end//
 delimiter ;
 
@@ -70,41 +73,45 @@ create procedure makepurchase(
     in p_quantity int
 )
 begin
-    set autocommit = 0;
-
-    insert into sale (productid, customerid, quantity, saledate)
-    values (p_productid, p_customerid, p_quantity, current_date());
-
-    update stock
-    set quantity = quantity - p_quantity
+    declare current_quantity int;
+    select quantity into current_quantity from stock
     where productid = p_productid;
 
-    -- checking if any rows were affected by the update
-    if row_count() = 0 then
-        -- product not available, rollback the transaction
+    if current_quantity - p_quantity < 0 then
         rollback;
         signal sqlstate '45000'
-        set message_text = 'product is not available. transaction rolled back.';
+        set message_text = 'Product is not available in sufficient quantity. Transaction rolled back.';
     else
-        -- product available, commit the transaction
+        insert into sale (productid, customerid, quantity, saledate)
+        values (p_productid, p_customerid, p_quantity, current_date());
         commit;
     end if;
 end //
 delimiter ;
 delimiter //
-CREATE PROCEDURE updatesale(
+create procedure updatesale(
     in p_customerid int,
     in p_productid int,
     in p_quantity int,
     in p_saleid int
 )
-BEGIN
-    UPDATE sale
-    SET customerid = p_customerid,
-        productid = p_productid,
-        quantity = p_quantity
-    WHERE saleid = p_saleid;
-END//
+begin
+    declare current_quantity int;
+    select quantity into current_quantity from stock
+    where productid = p_productid;
+    if current_quantity - p_quantity < 0 then
+        rollback;
+        signal sqlstate '45000'
+        set message_text = 'Product is not available in sufficient quantity. Transaction rolled back.';
+    else
+        update sale
+        set customerid = p_customerid,
+            productid = p_productid,
+            quantity = p_quantity
+        where saleid = p_saleid;
+        commit;
+    end if;
+end//
 delimiter ;
 insert into supplier (name)
 values
@@ -120,13 +127,13 @@ values
     ('product b', 800.50);
 insert into customer (name)
 values
-    ('Customer 1'),
-    ('Customer 2'),
-    ('Customer 3'),
-    ('Customer 4'),
-    ('Customer 5');
-INSERT INTO stock (productid, supplierid, quantity, purchasedate)
-VALUES
+    ('customer 1'),
+    ('customer 2'),
+    ('customer 3'),
+    ('customer 4'),
+    ('customer 5');
+insert into stock (productid, supplierid, quantity, purchasedate)
+values
     (1, 1, 100, '2023-01-01'),
     (2, 2, 50, '2023-01-02'),
     (3, 3, 75, '2023-01-03'),
