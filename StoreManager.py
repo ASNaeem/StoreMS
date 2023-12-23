@@ -1,9 +1,9 @@
-from PyQt6.QtWidgets import QMainWindow, QApplication, QTableWidgetItem, QMessageBox
+from PyQt6.QtWidgets import QMainWindow, QApplication, QTableWidgetItem, QMessageBox, QDialog
 from PyQt6.uic import loadUi
 from PyQt6.QtCore import QSettings, Qt
 import mysql.connector
 from datetime import datetime
-
+from MySQLConnectionConfigure import ConnectionDialog, check_database_connection
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -549,7 +549,7 @@ class MainWindow(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication([])
-    username, password, port = "", "", ""  # Default values or values from config.ini
+    username, password, host, port = "", "", "",""
 
     if not check_database_connection(username, password, port):
         dialog = ConnectionDialog()
@@ -560,7 +560,7 @@ if __name__ == "__main__":
         else:
             app.quit()
 
-    main_window = MainWindow(username, password, port)
+    main_window = MainWindow()
     main_window.show()
 
     app.exec()

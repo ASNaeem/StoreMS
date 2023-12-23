@@ -70,6 +70,7 @@ if __name__ == "__main__":
 
         if result == QDialog.DialogCode.Accepted:
             username, password, port = dialog.get_connection_info()
+            app.quit()
         else:
             app.quit()
 
