@@ -1,7 +1,7 @@
 # Instructions
-* 1. Download and extract the zip
-* 2. Import the storeDB.sql into MySQL
-* 3. Compile and run the App.py
+1. Download and extract the zip
+2. Import the storeDB.sql into MySQL
+3. Compile and run the App.py
 # Dependencies
 * Python 3 11.7
 * PyQt6 6.4.2
